@@ -7,5 +7,77 @@
 </head>
 <body>
     <div id="root"></div>
+
+    <!-- File Upload Section -->
+    <div id="upload-section">
+        <h2>Upload a File</h2>
+        <input type="file" id="fileInput" />
+        <button id="uploadButton">Upload</button>
+    </div>
+
+    <!-- Analyzed Data Section -->
+    <div id="analysis-results">
+        <h2>Analyzed Data</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Example JavaScript to handle file upload and display results
+        document.getElementById('uploadButton').addEventListener('click', async () => {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('http://localhost:5000/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayResults(data.grouped_risks);
+                } else {
+                    alert(data.error || 'An error occurred while analyzing the file.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to upload the file.');
+            }
+        });
+
+        function displayResults(groupedRisks) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (Object.keys(groupedRisks).length === 0) {
+                resultsDiv.innerHTML = '<p>No risks detected in the document.</p>';
+                return;
+            }
+
+            for (const [riskType, risks] of Object.entries(groupedRisks)) {
+                const riskTypeHeader = document.createElement('h3');
+                riskTypeHeader.textContent = `🔹 ${riskType} Risks`;
+                resultsDiv.appendChild(riskTypeHeader);
+
+                const riskList = document.createElement('ul');
+                risks.forEach(risk => {
+                    const riskItem = document.createElement('li');
+                    riskItem.innerHTML = `
+                        <strong>Clause ${risk.index}:</strong> ${risk.clause}<br>
+                        <em>${risk.risk}</em> (<strong>${risk.severity}</strong>)
+                    `;
+                    riskList.appendChild(riskItem);
+                });
+
+                resultsDiv.appendChild(riskList);
+            }
+        }
+    </script>
 </body>
 </html>

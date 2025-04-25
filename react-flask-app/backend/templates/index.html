@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React Flask App</title>
+    <title>Legal Risk Analyzer</title>
 </head>
 <body>
-    <div id="root"></div>
+    <h1>Legal Risk Analyzer</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="file">Upload a legal document (PDF or DOCX):</label>
+        <input type="file" id="file" name="file" accept=".pdf,.docx" required>
+        <button type="submit">Analyze</button>
+    </form>
+    <div id="result"></div>
     <script src="{{ url_for('static', filename='js/bundle.js') }}"></script>
 </body>
 </html>
